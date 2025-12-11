@@ -3,12 +3,11 @@ package com.example.myapplication.domain.usecase
 import com.example.myapplication.domain.repository.AuthRepository
 import javax.inject.Inject
 
-class SignUpUseCase @Inject constructor(
+class SignInUseCase @Inject constructor(
     private val repo: AuthRepository
 ) {
     suspend operator fun invoke(
         email: String,
-        password: String,
-        displayName: String?
-    ) = repo.signUp(email, password, displayName)
+        password: String
+    ) = repo.signIn(email, password)
 }
