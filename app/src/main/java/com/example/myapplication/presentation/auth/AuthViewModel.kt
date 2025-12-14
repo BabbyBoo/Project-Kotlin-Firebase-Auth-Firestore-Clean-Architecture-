@@ -12,6 +12,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+sealed interface AuthUiState {
+    object Idle: AuthUiState
+    object Loading: AuthUiState
+    data class Success(val uid: String): AuthUiState
+    data class Error(val message: String): AuthUiState
+}
+
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val signUpUseCase: SignUpUseCase,
@@ -40,11 +47,4 @@ class AuthViewModel @Inject constructor(
             }
         }
     }
-}
-
-sealed interface AuthUiState {
-    object Idle: AuthUiState
-    object Loading: AuthUiState
-    data class Success(val uid: String): AuthUiState
-    data class Error(val message: String): AuthUiState
 }

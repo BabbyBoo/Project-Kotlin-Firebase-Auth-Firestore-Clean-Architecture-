@@ -4,7 +4,7 @@ import com.example.myapplication.domain.repository.AuthRepository
 import javax.inject.Inject
 
 class GetCurrentUserUidUseCase @Inject constructor(
-    private val authRepository: AuthRepository
+    private val repo: AuthRepository
 ) {
-    operator fun invoke(): String? = authRepository.currentUserUid()
+    operator fun invoke(): String? = repo.currentUserUid()
 }

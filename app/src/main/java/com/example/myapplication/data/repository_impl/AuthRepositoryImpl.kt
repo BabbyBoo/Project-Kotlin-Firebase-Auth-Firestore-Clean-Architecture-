@@ -17,17 +17,16 @@ class AuthRepositoryImpl @Inject constructor(
 
         return result.fold(
             onSuccess = { uid ->
-                try {
-                    val profile = UserProfile(
-                        uid = uid,
-                        email = email,
-                        displayName = displayName
-                    )
-                    storeDs.saveUserProfile(profile)
-                    AuthResult.Success(uid)
-                } catch (e: Exception) {
-                    AuthResult.Failure(e)
-                }
+                val profile = UserProfile(
+                    uid = uid,
+                    email = email,
+                    displayName = displayName
+                )
+                val saveResult = storeDs.saveUserProfile(profile)
+                saveResult.fold(
+                    onSuccess = { AuthResult.Success(uid) },
+                    onFailure = { e -> AuthResult.Failure(e as Exception) }
+                )
             },
             onFailure = { e -> AuthResult.Failure(e as Exception) }
         )
@@ -42,12 +41,7 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun saveUserProfile(profile: UserProfile): Result<Unit> {
-        return try {
-            storeDs.saveUserProfile(profile)
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        return storeDs.saveUserProfile(profile)
     }
 
     override fun currentUserUid(): String? = authDs.currentUid()
