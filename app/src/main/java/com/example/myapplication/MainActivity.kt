@@ -12,9 +12,11 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // enableEdgeToEdge()
+        enableEdgeToEdge()
         setContent {
-            AppNavHost()   // start mặc định là SIGN_IN
+            MyApplicationTheme {
+                AppNavHost()
+            }   // start mặc định là SIGN_IN
         }
 
     }

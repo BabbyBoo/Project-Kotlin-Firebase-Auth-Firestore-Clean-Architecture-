@@ -11,7 +11,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 @Composable
 fun SignInScreen(
     viewModel: AuthViewModel = hiltViewModel(),
-    onSignedIn: (String) -> Unit      // callback điều hướng sang Profile
+    onSignedIn: (String) -> Unit,      // callback điều hướng sang Profile
+    onNavigateToSignUp: () -> Unit     // callback điều hướng sang SignUp
 ) {
     val uiState = viewModel.uiState
 
@@ -52,6 +53,15 @@ fun SignInScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Sign In")
+        }
+
+        Spacer(Modifier.height(16.dp))
+        
+        TextButton(
+            onClick = onNavigateToSignUp,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Don't have an account? Sign Up")
         }
 
         Spacer(Modifier.height(16.dp))

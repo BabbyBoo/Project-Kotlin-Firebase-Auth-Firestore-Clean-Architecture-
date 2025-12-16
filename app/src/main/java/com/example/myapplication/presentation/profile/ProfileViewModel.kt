@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.myapplication.domain.model.UserProfile
 import com.example.myapplication.domain.usecase.GetUserProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,18 +26,19 @@ class ProfileViewModel @Inject constructor(
     private val _uiState = mutableStateOf<ProfileUiState>(ProfileUiState.Loading)
     val uiState: State<ProfileUiState> = _uiState
 
+    private var loadJob: Job? = null
+
     fun loadProfile(uid: String) {
-        viewModelScope.launch {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
             _uiState.value = ProfileUiState.Loading
-            val result = getUserProfileUseCase(uid)
-            result.fold(
-                onSuccess = { profile ->
-                    _uiState.value = ProfileUiState.Success(profile)
-                },
-                onFailure = { e ->
+            getUserProfileUseCase(uid)
+                .catch { e ->
                     _uiState.value = ProfileUiState.Error(e.message ?: "Unknown error")
                 }
-            )
+                .collect { profile ->
+                    _uiState.value = ProfileUiState.Success(profile)
+                }
         }
     }
 }

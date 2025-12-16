@@ -32,6 +32,9 @@ fun AppNavHost(
                              popUpTo(NavRoutes.SIGN_IN) { inclusive = true }
                         }
                     }
+                },
+                onNavigateToSignUp = {
+                    navController.navigate(NavRoutes.SIGN_UP)
                 }
             )
         }
@@ -40,11 +43,9 @@ fun AppNavHost(
         composable(NavRoutes.SIGN_UP) {
             SignUpScreen(
                 onSignedUp = { uid ->
-                    if (uid.isNotBlank()) {
-                        navController.navigate("${NavRoutes.PROFILE}/$uid") {
-                             popUpTo(NavRoutes.SIGN_UP) { inclusive = true }
-                        }
-                    }
+                     navController.navigate(NavRoutes.SIGN_IN) {
+                         popUpTo(NavRoutes.SIGN_UP) { inclusive = true }
+                     }
                 }
             )
         }

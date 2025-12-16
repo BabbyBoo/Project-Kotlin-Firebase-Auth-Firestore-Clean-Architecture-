@@ -2,6 +2,9 @@ package com.example.myapplication.data.datasource
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.myapplication.domain.model.UserProfile
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -22,16 +25,23 @@ class FirestoreDataSource @Inject constructor(
         }
     }
 
-    suspend fun getUserProfile(uid: String): Result<UserProfile?> {
-        return try {
-            val doc = userCollection.document(uid).get().await()
-            if (doc.exists()) {
-                Result.success(doc.toObject(UserProfile::class.java))
-            } else {
-                Result.success(null)
+    fun getUserProfile(uid: String): Flow<UserProfile?> = callbackFlow {
+        val subscription = userCollection.document(uid).addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                close(error)
+                return@addSnapshotListener
             }
-        } catch (e: Exception) {
-            Result.failure(e)
+            if (snapshot != null && snapshot.exists()) {
+                try {
+                    val profile = snapshot.toObject(UserProfile::class.java)
+                    trySend(profile)
+                } catch (e: Exception) {
+                    close(e)
+                }
+            } else {
+                trySend(null)
+            }
         }
+        awaitClose { subscription.remove() }
     }
 }
