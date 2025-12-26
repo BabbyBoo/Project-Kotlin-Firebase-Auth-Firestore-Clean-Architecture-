@@ -5,8 +5,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.myapplication.domain.usecase.GetGoogleSignInClientUseCase
 import com.example.myapplication.domain.repository.AuthResult
 import com.example.myapplication.domain.usecase.SignInUseCase
+import com.example.myapplication.domain.usecase.SignInWithGoogleUseCase
 import com.example.myapplication.domain.usecase.SignUpUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -22,11 +24,15 @@ sealed interface AuthUiState {
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val signUpUseCase: SignUpUseCase,
-    private val signInUseCase: SignInUseCase
+    private val signInUseCase: SignInUseCase,
+    private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
+    private val getGoogleSignInClientUseCase: GetGoogleSignInClientUseCase
 ) : ViewModel() {
 
     var uiState by mutableStateOf<AuthUiState>(AuthUiState.Idle)
         private set
+
+    fun getGoogleSignInClient() = getGoogleSignInClientUseCase()
 
     fun signUp(email:String, pass:String, displayName:String?) {
         viewModelScope.launch {
@@ -42,6 +48,16 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             uiState = AuthUiState.Loading
             when(val res = signInUseCase(email, pass)) {
+                is AuthResult.Success -> uiState = AuthUiState.Success(res.uid)
+                is AuthResult.Failure -> uiState = AuthUiState.Error(res.exception.message ?: "Unknown")
+            }
+        }
+    }
+
+    fun signInWithGoogle(idToken: String) {
+        viewModelScope.launch {
+            uiState = AuthUiState.Loading
+            when(val res = signInWithGoogleUseCase(idToken)) {
                 is AuthResult.Success -> uiState = AuthUiState.Success(res.uid)
                 is AuthResult.Failure -> uiState = AuthUiState.Error(res.exception.message ?: "Unknown")
             }

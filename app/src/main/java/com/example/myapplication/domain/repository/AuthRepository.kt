@@ -10,5 +10,6 @@ interface AuthRepository {
     suspend fun signUp(email: String, password: String, displayName: String?): AuthResult
     suspend fun signIn(email: String, password: String): AuthResult
     suspend fun saveUserProfile(profile: UserProfile): Result<Unit>
+    suspend fun signInWithGoogle(idToken: String): AuthResult
     fun currentUserUid(): String?
 }
